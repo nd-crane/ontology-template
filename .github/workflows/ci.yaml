@@ -1,0 +1,23 @@
+name: Validate RDF
+on: [workflow_dispatch, pull_request, push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: "zulu"
+      - name: Provision Apache Jena
+        run: |
+          sudo /bin/sh -c 'wget -O /usr/local/src/jena.tar.gz https://archive.apache.org/dist/jena/binaries/apache-jena-4.6.1.tar.gz'
+          sudo tar -zxvf /usr/local/src/jena.tar.gz -C /usr/local/src
+          sudo mv /usr/local/src/apache-jena* /usr/local/jena
+          sudo chmod a+x /usr/local/jena/bin/riot
+        shell: bash
+      - name: Run Riot Validation on Modules
+        run: |
+          bash ./tests/validate.sh
+        shell: bash
